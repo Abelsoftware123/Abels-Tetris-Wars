@@ -1,4 +1,4 @@
-// DOM elementen 
+// DOM elementen
 const grid = document.querySelector('.grid');
 const scoreDisplay = document.querySelector('#score');
 const linesDisplay = document.querySelector('#lines');

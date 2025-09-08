@@ -171,9 +171,4 @@ function gameOver() {
 const displayWidth = 4;
 const displaySquares = document.querySelectorAll('.previous-shape div');
 const upNextTetrominos = [
-  [1, displayWidth + 1, displayWidth * 2 + 1, 2], // L-vorm (eerste rotatie)
-  [0, displayWidth, displayWidth + 1, displayWidth * 2 + 1], // J-vorm
-  [1, displayWidth, displayWidth + 1, displayWidth + 2], // T-vorm
-  [0, 1, displayWidth + 1, displayWidth + 2], // Z-vorm
-  [1, displayWidth, displayWidth + 1, displayWidth * 2], // S-vorm
-  [1, displayWidth + 1, displayWidth * 2 + 1, displayWidth * 3 + 1], // I-vorm
+  

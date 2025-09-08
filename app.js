@@ -1,24 +1,24 @@
-// Game-besturingselementen
+// DOM elementen
+const grid = document.querySelector('.grid');
 const scoreDisplay = document.querySelector('#score');
 const linesDisplay = document.querySelector('#lines');
 const startBtn = document.querySelector('.start-btn');
 const rulesBtn = document.querySelector('.rules-btn');
 const closeBtn = document.querySelector('.close-btn');
-const grid = document.querySelector('.grid');
 
-// Gamevariabelen
+// Game variabelen
 const width = 10;
 const gameSize = 200; // 20 rijen van 10 kolommen
 let score = 0;
 let lines = 0;
 let timerId = null;
-let nextRandom = 0;
 let currentPosition = 4;
 let currentRotation = 0;
-let random = Math.floor(Math.random() * 7); // Er zijn 7 tetromino's
+let random = Math.floor(Math.random() * 7);
+let nextRandom = 0;
 let squares = [];
 
-// Tetromino-vormen
+// Tetromino vormen
 const theTetrominos = [
   [1, width + 1, width * 2 + 1, 2], // De L-vorm
   [0, width, width + 1, width * 2 + 1], // De J-vorm
@@ -29,7 +29,7 @@ const theTetrominos = [
   [1, 2, width + 1, width * 2 + 1], // De I-vorm
 ];
 
-// Kleuren van de blokken
+// Kleuren en afbeeldingen van de blokken
 const colors = [
   'url(./images/blue_block.png)',
   'url(./images/pink_block.png)',
@@ -46,6 +46,7 @@ function createGrid() {
     const square = document.createElement('div');
     grid.appendChild(square);
   }
+  // De 'taken' rij onderaan
   for (let i = 0; i < width; i++) {
     const square = document.createElement('div');
     square.classList.add('taken');
@@ -56,16 +57,16 @@ function createGrid() {
 
 // Functie om de Tetromino te tekenen
 function draw() {
-  const current = theTetrominos[random][currentRotation];
-  current.forEach(index => {
+  const currentShape = theTetrominos[random][currentRotation];
+  currentShape.forEach(index => {
     squares[currentPosition + index].style.backgroundImage = colors[random];
   });
 }
 
 // Functie om de Tetromino te verwijderen
 function undraw() {
-  const current = theTetrominos[random][currentRotation];
-  current.forEach(index => {
+  const currentShape = theTetrominos[random][currentRotation];
+  currentShape.forEach(index => {
     squares[currentPosition + index].style.backgroundImage = 'none';
   });
 }
@@ -80,9 +81,9 @@ function moveDown() {
 
 // Functie om het blok te bevriezen
 function freeze() {
-  const current = theTetrominos[random][currentRotation];
-  if (current.some(index => squares[currentPosition + index + width].classList.contains('taken'))) {
-    current.forEach(index => squares[currentPosition + index].classList.add('taken'));
+  const currentShape = theTetrominos[random][currentRotation];
+  if (currentShape.some(index => squares[currentPosition + index + width].classList.contains('taken'))) {
+    currentShape.forEach(index => squares[currentPosition + index].classList.add('taken'));
     addScore();
     addNextTetromino();
   }
@@ -152,8 +153,8 @@ function addScore() {
 
 // Game Over Functie
 function gameOver() {
-  const current = theTetrominos[random][currentRotation];
-  if (current.some(index => squares[currentPosition + index].classList.contains('taken'))) {
+  const currentShape = theTetrominos[random][currentRotation];
+  if (currentShape.some(index => squares[currentPosition + index].classList.contains('taken'))) {
     scoreDisplay.innerHTML = 'end';
     clearInterval(timerId);
   }
@@ -219,8 +220,7 @@ closeBtn.addEventListener('click', () => {
   rulesModal.style.display = 'none';
 });
 
-// Laad de DOM-inhoud
+// Zorg ervoor dat de DOM is geladen voordat we scripts uitvoeren
 document.addEventListener('DOMContentLoaded', () => {
   createGrid();
-  draw();
 });

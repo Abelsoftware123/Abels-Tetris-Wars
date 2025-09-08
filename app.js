@@ -223,4 +223,5 @@ closeBtn.addEventListener('click', () => {
 // Zorg ervoor dat de DOM is geladen voordat we scripts uitvoeren
 document.addEventListener('DOMContentLoaded', () => {
   createGrid();
+  draw();
 });

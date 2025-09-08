@@ -170,4 +170,63 @@ function gameOver() {
 // Toon volgende vorm
 const displayWidth = 4;
 const displaySquares = document.querySelectorAll('.previous-shape div');
-const upNext
+const upNextTetrominos = [
+  [1, displayWidth + 1, displayWidth * 2 + 1, 2], // L-vorm (eerste rotatie)
+  [0, displayWidth, displayWidth + 1, displayWidth * 2 + 1], // J-vorm
+  [1, displayWidth, displayWidth + 1, displayWidth + 2], // T-vorm
+  [0, 1, displayWidth + 1, displayWidth + 2], // Z-vorm
+  [1, displayWidth, displayWidth + 1, displayWidth * 2], // S-vorm
+  [1, displayWidth + 1, displayWidth * 2 + 1, displayWidth * 3 + 1], // I-vorm
+  [0, 1, displayWidth, displayWidth + 1] // O-vorm
+];
+
+function displayNextShape() {
+  displaySquares.forEach(square => {
+    square.style.backgroundImage = 'none';
+  });
+  upNextTetrominos[nextRandom].forEach(index => {
+    displaySquares[index].style.backgroundImage = colors[nextRandom];
+  });
+}
+
+// Toetsenbordbesturing
+function control(e) {
+  if (e.keyCode === 37) {
+    moveLeft();
+  } else if (e.keyCode === 38) {
+    rotate();
+  } else if (e.keyCode === 39) {
+    moveRight();
+  } else if (e.keyCode === 40) {
+    moveDown();
+  }
+}
+
+// Start/Pauze knop
+startBtn.addEventListener('click', () => {
+  if (timerId) {
+    clearInterval(timerId);
+    timerId = null;
+  } else {
+    document.addEventListener('keydown', control);
+    addNextTetromino();
+    timerId = setInterval(moveDown, 1000);
+  }
+});
+
+// Toon regels
+rulesBtn.addEventListener('click', () => {
+  const rulesModal = document.querySelector('.rules-modal');
+  rulesModal.style.display = 'flex';
+});
+
+closeBtn.addEventListener('click', () => {
+  const rulesModal = document.querySelector('.rules-modal');
+  rulesModal.style.display = 'none';
+});
+
+// Zorg ervoor dat de DOM is geladen voordat we scripts uitvoeren
+document.addEventListener('DOMContentLoaded', () => {
+  createGrid();
+});
+

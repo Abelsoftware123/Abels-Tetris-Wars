@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+Document.addEventListener('DOMContentLoaded', () => {
   // TODO: we can also get the grid size from user
   const GRID_WIDTH = 10
   const GRID_HEIGHT = 20

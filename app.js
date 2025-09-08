@@ -170,5 +170,4 @@ function gameOver() {
 // Toon volgende vorm
 const displayWidth = 4;
 const displaySquares = document.querySelectorAll('.previous-shape div');
-const upNextTetrominos = [
-  
+const upNext

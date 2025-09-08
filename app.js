@@ -5,6 +5,7 @@ const linesDisplay = document.querySelector('#lines');
 const startBtn = document.querySelector('.start-btn');
 const rulesBtn = document.querySelector('.rules-btn');
 const closeBtn = document.querySelector('.close-btn');
+const nextShapeDisplay = document.querySelector('.previous-shape');
 
 // Game variabelen
 const width = 10;
@@ -18,15 +19,22 @@ let random = Math.floor(Math.random() * 7);
 let nextRandom = 0;
 let squares = [];
 
-// Tetromino vormen
+// Tetromino vormen met alle rotaties
 const theTetrominos = [
-  [1, width + 1, width * 2 + 1, 2], // De L-vorm
-  [0, width, width + 1, width * 2 + 1], // De J-vorm
-  [0, 1, width, width + 1], // De S-vorm
-  [1, width, width + 1, width + 2], // De Z-vorm
-  [1, width, width * 2, width * 2 + 1], // De T-vorm
-  [0, 1, width + 1, width + 2], // De O-vorm
-  [1, 2, width + 1, width * 2 + 1], // De I-vorm
+  // L-vorm
+  [[1, width + 1, width * 2 + 1, 2], [1, width, width + 1, width + 2], [width, width * 2, width * 2 + 1, width * 2 + 2], [0, 1, width + 1, width * 2 + 1]],
+  // J-vorm
+  [[0, width, width + 1, width * 2 + 1], [width + 1, width + 2, width * 2, width + 2], [0, width + 1, width * 2, width * 2 + 1], [0, 1, width, width * 2]],
+  // T-vorm
+  [[1, width, width + 1, width + 2], [1, width + 1, width + 2, width * 2 + 1], [width, width + 1, width + 2, width * 2 + 1], [1, width, width + 1, width * 2 + 1]],
+  // Z-vorm
+  [[0, 1, width + 1, width + 2], [width, width + 1, width * 2 + 1, width * 2 + 2], [1, width, width + 1, width * 2], [0, width, width + 1, width * 2 + 1]],
+  // S-vorm
+  [[1, width, width + 1, width * 2], [0, width, width + 1, width * 2 + 1], [width, width + 1, width * 2, width * 2 + 1], [1, width, width + 1, width * 2]],
+  // I-vorm
+  [[1, width + 1, width * 2 + 1, width * 3 + 1], [width, width + 1, width + 2, width + 3], [1, width + 1, width * 2 + 1, width * 3 + 1], [width, width + 1, width + 2, width + 3]],
+  // O-vorm
+  [[0, 1, width, width + 1], [0, 1, width, width + 1], [0, 1, width, width + 1], [0, 1, width, width + 1]],
 ];
 
 // Kleuren en afbeeldingen van de blokken
@@ -57,16 +65,14 @@ function createGrid() {
 
 // Functie om de Tetromino te tekenen
 function draw() {
-  const currentShape = theTetrominos[random][currentRotation];
-  currentShape.forEach(index => {
+  theTetrominos[random][currentRotation].forEach(index => {
     squares[currentPosition + index].style.backgroundImage = colors[random];
   });
 }
 
 // Functie om de Tetromino te verwijderen
 function undraw() {
-  const currentShape = theTetrominos[random][currentRotation];
-  currentShape.forEach(index => {
+  theTetrominos[random][currentRotation].forEach(index => {
     squares[currentPosition + index].style.backgroundImage = 'none';
   });
 }
@@ -86,6 +92,7 @@ function freeze() {
     currentShape.forEach(index => squares[currentPosition + index].classList.add('taken'));
     addScore();
     addNextTetromino();
+    gameOver();
   }
 }
 
@@ -126,9 +133,9 @@ function addNextTetromino() {
   random = nextRandom;
   nextRandom = Math.floor(Math.random() * theTetrominos.length);
   currentPosition = 4;
+  currentRotation = 0; // Reset rotatie voor nieuwe vorm
   draw();
   displayNextShape();
-  gameOver();
 }
 
 // Functie om de score te verhogen en regels te controleren
@@ -153,10 +160,10 @@ function addScore() {
 
 // Game Over Functie
 function gameOver() {
-  const currentShape = theTetrominos[random][currentRotation];
-  if (currentShape.some(index => squares[currentPosition + index].classList.contains('taken'))) {
+  if (theTetrominos[random][currentRotation].some(index => squares[currentPosition + index].classList.contains('taken'))) {
     scoreDisplay.innerHTML = 'end';
     clearInterval(timerId);
+    document.removeEventListener('keydown', control);
   }
 }
 
@@ -164,64 +171,9 @@ function gameOver() {
 const displayWidth = 4;
 const displaySquares = document.querySelectorAll('.previous-shape div');
 const upNextTetrominos = [
-  [1, displayWidth + 1, displayWidth * 2 + 1, 2], // De L-vorm
-  [0, displayWidth, displayWidth + 1, displayWidth * 2 + 1], // De J-vorm
-  [0, 1, displayWidth, displayWidth + 1], // De S-vorm
-  [1, displayWidth, displayWidth + 1, displayWidth + 2], // De Z-vorm
-  [1, displayWidth, displayWidth * 2, displayWidth * 2 + 1], // De T-vorm
-  [0, 1, displayWidth + 1, displayWidth + 2], // De O-vorm
-  [1, 2, displayWidth + 1, displayWidth * 2 + 1], // De I-vorm
-];
-
-function displayNextShape() {
-  displaySquares.forEach(square => {
-    square.style.backgroundImage = 'none';
-  });
-  upNextTetrominos[nextRandom].forEach(index => {
-    displaySquares[index].style.backgroundImage = colors[nextRandom];
-  });
-}
-
-// Toetsenbordbesturing
-function control(e) {
-  if (e.keyCode === 37) {
-    moveLeft();
-  } else if (e.keyCode === 38) {
-    rotate();
-  } else if (e.keyCode === 39) {
-    moveRight();
-  } else if (e.keyCode === 40) {
-    moveDown();
-  }
-}
-document.addEventListener('keydown', control);
-
-// Start/Pauze knop
-startBtn.addEventListener('click', () => {
-  if (timerId) {
-    clearInterval(timerId);
-    timerId = null;
-  } else {
-    draw();
-    timerId = setInterval(moveDown, 1000);
-    nextRandom = Math.floor(Math.random() * theTetrominos.length);
-    displayNextShape();
-  }
-});
-
-// Toon regels
-rulesBtn.addEventListener('click', () => {
-  const rulesModal = document.querySelector('.rules-modal');
-  rulesModal.style.display = 'flex';
-});
-
-closeBtn.addEventListener('click', () => {
-  const rulesModal = document.querySelector('.rules-modal');
-  rulesModal.style.display = 'none';
-});
-
-// Zorg ervoor dat de DOM is geladen voordat we scripts uitvoeren
-document.addEventListener('DOMContentLoaded', () => {
-  createGrid();
-  draw();
-});
+  [1, displayWidth + 1, displayWidth * 2 + 1, 2], // L-vorm (eerste rotatie)
+  [0, displayWidth, displayWidth + 1, displayWidth * 2 + 1], // J-vorm
+  [1, displayWidth, displayWidth + 1, displayWidth + 2], // T-vorm
+  [0, 1, displayWidth + 1, displayWidth + 2], // Z-vorm
+  [1, displayWidth, displayWidth + 1, displayWidth * 2], // S-vorm
+  [1, displayWidth + 1, displayWidth * 2 + 1, displayWidth * 3 + 1], // I-vorm

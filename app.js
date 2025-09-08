@@ -1,19 +1,33 @@
 // Game-besturingselementen
-const grid = document.querySelector('.grid')
-const scoreDisplay = document.querySelector('#score')
-const linesDisplay = document.querySelector('#lines')
-const startBtn = document.querySelector('.start-btn')
-const display = document.querySelector('.previous-shape')
+const scoreDisplay = document.querySelector('#score');
+const linesDisplay = document.querySelector('#lines');
+const startBtn = document.querySelector('.start-btn');
 const rulesBtn = document.querySelector('.rules-btn');
 const closeBtn = document.querySelector('.close-btn');
+const grid = document.querySelector('.grid');
 
 // Gamevariabelen
-const width = 10
-const gameSize = 200 // 20 rijen van 10 kolommen
-let score = 0
-let lines = 0
-let timerId
-let nextRandom = 0
+const width = 10;
+const gameSize = 200; // 20 rijen van 10 kolommen
+let score = 0;
+let lines = 0;
+let timerId = null;
+let nextRandom = 0;
+let currentPosition = 4;
+let currentRotation = 0;
+let random = Math.floor(Math.random() * 7); // Er zijn 7 tetromino's
+let squares = [];
+
+// Tetromino-vormen
+const theTetrominos = [
+  [1, width + 1, width * 2 + 1, 2], // De L-vorm
+  [0, width, width + 1, width * 2 + 1], // De J-vorm
+  [0, 1, width, width + 1], // De S-vorm
+  [1, width, width + 1, width + 2], // De Z-vorm
+  [1, width, width * 2, width * 2 + 1], // De T-vorm
+  [0, 1, width + 1, width + 2], // De O-vorm
+  [1, 2, width + 1, width * 2 + 1], // De I-vorm
+];
 
 // Kleuren van de blokken
 const colors = [
@@ -24,132 +38,175 @@ const colors = [
   'url(./images/yellow_block.png)',
   'url(./images/navy_block.png)',
   'url(./images/green_block.png)'
-]
-
-const theTetrominos = [
-  [1, 2, 3, 4], // The L-shape
-  [1, width + 1, width * 2 + 1, 2], // The J-shape
-  [0, width, width + 1, width * 2 + 1], // The S-shape
-  [0, 1, width, width + 1], // The Z-shape
-  [1, width, width + 1, width + 2], // The T-shape
-  [1, width, width * 2, width * 2 + 1], // The O-shape
-  [0, 1, width + 1, width + 2] // The I-shape
-]
-
-let currentPosition = 4
-let currentRotation = 0
-let random = Math.floor(Math.random() * theTetrominos.length)
-let current = theTetrominos[random][currentRotation]
+];
 
 // Functie om het speelveld te creëren
 function createGrid() {
   for (let i = 0; i < gameSize; i++) {
-    const square = document.createElement('div')
-    grid.appendChild(square)
+    const square = document.createElement('div');
+    grid.appendChild(square);
   }
+  for (let i = 0; i < width; i++) {
+    const square = document.createElement('div');
+    square.classList.add('taken');
+    grid.appendChild(square);
+  }
+  squares = document.querySelectorAll('.grid div');
 }
 
-// Functie om de Tetromino's willekeurig te genereren en te roteren
-function generateNextTetromino() {
-  random = nextRandom
-  nextRandom = Math.floor(Math.random() * theTetrominos.length)
-  current = theTetrominos[random][currentRotation]
-}
-
-// Functie om een ​​Tetromino te tekenen
+// Functie om de Tetromino te tekenen
 function draw() {
+  const current = theTetrominos[random][currentRotation];
   current.forEach(index => {
-    squares[currentPosition + index].style.backgroundImage = colors[random]
-  })
+    squares[currentPosition + index].style.backgroundImage = colors[random];
+  });
 }
 
-// Functie om een ​​Tetromino te verwijderen
+// Functie om de Tetromino te verwijderen
 function undraw() {
+  const current = theTetrominos[random][currentRotation];
   current.forEach(index => {
-    squares[currentPosition + index].style.backgroundImage = 'none'
-  })
+    squares[currentPosition + index].style.backgroundImage = 'none';
+  });
 }
 
-// Functie om de Tetromino naar beneden te verplaatsen
+// Functie om naar beneden te bewegen
 function moveDown() {
-  undraw()
-  currentPosition += width
-  draw()
-  freeze()
+  undraw();
+  currentPosition += width;
+  draw();
+  freeze();
 }
 
 // Functie om het blok te bevriezen
 function freeze() {
+  const current = theTetrominos[random][currentRotation];
   if (current.some(index => squares[currentPosition + index + width].classList.contains('taken'))) {
-    current.forEach(index => squares[currentPosition + index].classList.add('taken'))
-    random = nextRandom
-    nextRandom = Math.floor(Math.random() * theTetrominos.length)
-    current = theTetrominos[random][currentRotation]
-    currentPosition = 4
-    draw()
+    current.forEach(index => squares[currentPosition + index].classList.add('taken'));
+    addScore();
+    addNextTetromino();
   }
+}
+
+// Functie om naar links te bewegen
+function moveLeft() {
+  undraw();
+  const isAtLeftEdge = theTetrominos[random][currentRotation].some(index => (currentPosition + index) % width === 0);
+  if (!isAtLeftEdge) currentPosition -= 1;
+  if (theTetrominos[random][currentRotation].some(index => squares[currentPosition + index].classList.contains('taken'))) {
+    currentPosition += 1;
+  }
+  draw();
+}
+
+// Functie om naar rechts te bewegen
+function moveRight() {
+  undraw();
+  const isAtRightEdge = theTetrominos[random][currentRotation].some(index => (currentPosition + index) % width === width - 1);
+  if (!isAtRightEdge) currentPosition += 1;
+  if (theTetrominos[random][currentRotation].some(index => squares[currentPosition + index].classList.contains('taken'))) {
+    currentPosition -= 1;
+  }
+  draw();
+}
+
+// Functie om te roteren
+function rotate() {
+  undraw();
+  currentRotation++;
+  if (currentRotation === theTetrominos[random].length) {
+    currentRotation = 0;
+  }
+  draw();
+}
+
+// Functie om een nieuwe Tetromino te starten
+function addNextTetromino() {
+  random = nextRandom;
+  nextRandom = Math.floor(Math.random() * theTetrominos.length);
+  currentPosition = 4;
+  draw();
+  displayNextShape();
+  gameOver();
+}
+
+// Functie om de score te verhogen en regels te controleren
+function addScore() {
+  for (let i = 0; i < gameSize; i += width) {
+    const row = [i, i + 1, i + 2, i + 3, i + 4, i + 5, i + 6, i + 7, i + 8, i + 9];
+    if (row.every(index => squares[index].classList.contains('taken'))) {
+      score += 10;
+      lines++;
+      scoreDisplay.innerHTML = score;
+      linesDisplay.innerHTML = lines;
+      row.forEach(index => {
+        squares[index].classList.remove('taken');
+        squares[index].style.backgroundImage = 'none';
+      });
+      const squaresRemoved = squares.splice(i, width);
+      squares = squaresRemoved.concat(squares);
+      squares.forEach(cell => grid.appendChild(cell));
+    }
+  }
+}
+
+// Game Over Functie
+function gameOver() {
+  const current = theTetrominos[random][currentRotation];
+  if (current.some(index => squares[currentPosition + index].classList.contains('taken'))) {
+    scoreDisplay.innerHTML = 'end';
+    clearInterval(timerId);
+  }
+}
+
+// Toon volgende vorm
+const displayWidth = 4;
+const displaySquares = document.querySelectorAll('.previous-shape div');
+const upNextTetrominos = [
+  [1, displayWidth + 1, displayWidth * 2 + 1, 2], // De L-vorm
+  [0, displayWidth, displayWidth + 1, displayWidth * 2 + 1], // De J-vorm
+  [0, 1, displayWidth, displayWidth + 1], // De S-vorm
+  [1, displayWidth, displayWidth + 1, displayWidth + 2], // De Z-vorm
+  [1, displayWidth, displayWidth * 2, displayWidth * 2 + 1], // De T-vorm
+  [0, 1, displayWidth + 1, displayWidth + 2], // De O-vorm
+  [1, 2, displayWidth + 1, displayWidth * 2 + 1], // De I-vorm
+];
+
+function displayNextShape() {
+  displaySquares.forEach(square => {
+    square.style.backgroundImage = 'none';
+  });
+  upNextTetrominos[nextRandom].forEach(index => {
+    displaySquares[index].style.backgroundImage = colors[nextRandom];
+  });
 }
 
 // Toetsenbordbesturing
 function control(e) {
   if (e.keyCode === 37) {
-    moveLeft()
+    moveLeft();
   } else if (e.keyCode === 38) {
-    rotate()
+    rotate();
   } else if (e.keyCode === 39) {
-    moveRight()
+    moveRight();
   } else if (e.keyCode === 40) {
-    moveDown()
+    moveDown();
   }
 }
+document.addEventListener('keydown', control);
 
-document.addEventListener('keydown', control)
-
-// Start het spel
+// Start/Pauze knop
 startBtn.addEventListener('click', () => {
   if (timerId) {
-    clearInterval(timerId)
-    timerId = null
+    clearInterval(timerId);
+    timerId = null;
   } else {
-    createGrid()
-    timerId = setInterval(moveDown, 1000)
-    generateNextTetromino()
-    draw()
+    draw();
+    timerId = setInterval(moveDown, 1000);
+    nextRandom = Math.floor(Math.random() * theTetrominos.length);
+    displayNextShape();
   }
-})
-
-// Functie om naar links te bewegen
-function moveLeft() {
-  undraw()
-  const isAtLeftEdge = current.some(index => (currentPosition + index) % width === 0)
-  if (!isAtLeftEdge) currentPosition -= 1
-  if (current.some(index => squares[currentPosition + index].classList.contains('taken'))) {
-    currentPosition += 1
-  }
-  draw()
-}
-
-// Functie om naar rechts te bewegen
-function moveRight() {
-  undraw()
-  const isAtRightEdge = current.some(index => (currentPosition + index) % width === width - 1)
-  if (!isAtRightEdge) currentPosition += 1
-  if (current.some(index => squares[currentPosition + index].classList.contains('taken'))) {
-    currentPosition -= 1
-  }
-  draw()
-}
-
-// Functie om te roteren
-function rotate() {
-  undraw()
-  currentRotation++
-  if (currentRotation === current.length) {
-    currentRotation = 0
-  }
-  current = theTetrominos[random][currentRotation]
-  draw()
-}
+});
 
 // Toon regels
 rulesBtn.addEventListener('click', () => {
@@ -162,10 +219,8 @@ closeBtn.addEventListener('click', () => {
   rulesModal.style.display = 'none';
 });
 
-// Zorg ervoor dat de DOM is geladen voordat we scripts uitvoeren
+// Laad de DOM-inhoud
 document.addEventListener('DOMContentLoaded', () => {
   createGrid();
   draw();
-})
-
-const squares = document.querySelectorAll('.grid div');
+});

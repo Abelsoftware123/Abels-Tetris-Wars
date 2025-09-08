@@ -1,49 +1,74 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
-
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Tetris Wars AI</title>
-  <script src="js/app.js" charset="utf-8"></script>
-  <link rel="stylesheet" href="css/style.css">
-  <link href="https://fonts.googleapis.com/css?family=Montserrat:300,400&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tetris Wars</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
+
   <div class="menu-wrap">
-    <input type="checkbox" class="toggler">
-    <div class="hamburger">
-      <div></div>
+    <header class="header">
+      <div class="score-display">
+        <h1>Welcome to tetris</h1>
+        <h2 id="score">Your Score</h2>
+        <h2 id="lines">Lines:0</h2>
+        <div class="previous-shape">
+          <div class="previous-grid">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="game-area">
+      <div class="grid"></div>
+    </main>
+
+    <div class="button-area">
+      <button class="start-btn">Start / Pause</button>
+      <button class="rules-btn">Rules</button>
     </div>
-    <div class="menu">
-      <div class="menu-content">
-        <h2 class="t-ucase">rules</h2>
-        <p class="rules"> Please use the <b class="key">UP</b> key to rotate your tetromino, and <b class="key">LEFT</b>
-          and <b class="key">RIGHT</b> to <br> move across the board. Pressing <b class="key">DOWN</b> will speed up the
-          tetromino.</p>
-        <button class="close fw-400">X</button>
+  </div>
+
+  <div class="rules-modal">
+    <div class="rules-content">
+      <div class="rules-header">
+        <h2>Rules</h2>
+        <button class="close-btn">&times;</button>
+      </div>
+      <div class="rules-body">
+        <p>Use the **arrow keys** on your keyboard to control the falling blocks.</p>
+        <ul>
+          <li>**UP** arrow to rotate the tetromino.</li>
+          <li>**LEFT** and **RIGHT** arrows to move the tetromino across the board.</li>
+          <li>**DOWN** arrow to speed up the tetromino's fall.</li>
+        </ul>
+        <p>The goal is to complete horizontal lines of blocks without any gaps. When a line is complete, it will disappear, and you will earn points. The game ends when the blocks stack up to the top of the grid.</p>
       </div>
     </div>
   </div>
-  <header>
-    <h1 class="fw-300 t-ucase">Welcome <br><span class="fw-400 t-wide t-big t-ucase">to tetris</span></h1>
-  </header>
-  <main class="game-area">
-    <div class="game">
-      <div class="grid"></div>
-    </div>
-    <section>
-      <div class="display">
-        <h1 class="score fw-400 t-ucase">Your Score <br> <span class="score-display t-ucase fw-300">0</span></h1>
-        <div class="previous-shape">
-          <div class="previous-grid"></div>
-        </div>
-        <h2 class="lines-display fw-400 t-ucase">Lines:<span class="lines-score">0</span></h2>
-      </div>
-      <button class="button t-ucase" href="#">Start / Pause</button>
-      <small class='footer t-ucase'>Karim Abelsoftware123</small>
-    </section>
-  </main>
-</body>
 
+  <script src="app.js"></script>
+</body>
 </html>
